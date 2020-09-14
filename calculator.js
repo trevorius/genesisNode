@@ -23,6 +23,18 @@ app.get("/", (req,res) => {
     res.send('Hello from calculator app')
 })
 
+//wake up post
+app.post('/wake-up', (req, res) => {
+	const status = req.body.state;
+	console.log("someone woke me up by chanting : " + status);	
+	//sends back
+	res.status(200).send({ 
+		state: "I am awake"});
+
+res.end();
+});
+
+
 //rocket elevator specific variables
 var floorsPerColumn = 20;
 var standardPrice = 7565 , premiumPrice = 12345 , exceliumPrice = 15400; 
