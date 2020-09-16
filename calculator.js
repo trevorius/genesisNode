@@ -1,3 +1,5 @@
+//before upload to heroku delete local from formatNumber function
+
 const express = require('./node_modules/express');
 const app = express();
 
@@ -138,7 +140,7 @@ totalString = formatNumber(total);
 
 var formatNumber = function(x){
 	x = x.toFixed(2);
-	 return x.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')+"local";
+	 return x.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');//+"local";
 };
 
 function calcCom(){
@@ -227,8 +229,8 @@ var comCalc = function(){
 var db = new loki('projects.json',{
     autoload: true,
     autoloadCallback: loadHandler,
-    autosave: true,
-    autosaveInterval: 10000
+    autosave: false,
+    //autosaveInterval: 10000
 });
 
 //load Database from file
@@ -243,4 +245,134 @@ var test = testcollection.insert ({name:"john"});
 testcollection.insert({name: "testing"})
 
 console.log(db);
+console.log(testcollection.data);
+
+
+
+// saveproject post
+app.post('/save-project', (req, res) => {
+
+	 		const projectName =  req.body.projectName;
+			//row1
+			var tenants =  req.body.tenants;
+			const floors =  req.body.floors;
+			const type =  req.body.type;
+			//row2 variables
+			const basements =  req.body.basements;
+			const parking =  req.body.parking;
+			const occupants =  req.body.occupants;
+			const cages =  req.body.cages;
+			const activity =  req.body.activity;
+
+			const line = req.body.line;
+			//row3 variables
+			const columns =  req.body.columns;
+			const shafts =  req.body.shafts;
+			const elevators =  req.body.elevators;
+			//totals
+			const totalMat =  req.body.totalMatString;
+			const fee =  req.body.feeString;
+			const total =  req.body.totalString;
+
+
+	console.log("received");
+	console.log(projectName);
+     //add to db
+   var projects = db.addCollection('projects');
+   var project = projects.insert({
+		name: projectName,
+		//row1
+		tenants: tenants,
+		floors: floors,
+		type: type,
+		//row2 variables
+		basements : basements,
+		parking : parking,
+		occupants : occupants,
+		cages : cages,
+		activity : activity,
+
+		//row3 variables
+
+		columns : columns,
+		shafts : shafts,
+		elevators: elevators,
+		//totals
+		line : line,
+		totalMat: totalMat,
+		fee: fee,
+		total: total
+	});
+   
+	console.log(project.name);
+  	var doc = projects.get(project.$loki)
+   
+  
+   
+   	console.log (projects.data);
+	console.log(doc.$loki);
+   //console.log(db);
+
+	   
+	   //test de commande je veux le document $loki 25
+  
+	   var docu = projects.findOne({$loki:1});
+	   console.log("searched document is : ");
+	   console.log(docu.name);
+
+  db.saveDatabase();
+
+
+
+   //sends the $loki id number of saved project
+   res.status(200).send({  projectNumber: doc.$loki});
+   res.end()
+});
+
+//load a project post
+app.post("/load-project", (req, res) => {
+    
+	const loki = parseInt(req.body.loki);
+	console.log("recieved");
+	console.log(loki);
+    
+	var projects = db.addCollection('projects');
+
+
+     var found = projects.findOne({$loki: loki});
+        console.log("found document is : ");
+		console.log(found);
+		console.log (found.type);
+
+    
+
+ //sends the result of findOne
+	res.status(200).send({ 
+		name: found.name,
+		$loki: found.$loki,
+		//row1
+		tenants: found.tenants,
+		floors: found.floors,
+		type: found.type,
+		//row2 variables
+		basements : found.basements,
+		parking : found.parking,
+		occupants : found.occupants,
+		cages : found.cages,
+		activity : found.activity,
+
+		//row3 variables
+		columns : found.columns,
+		shafts : found.shafts,
+		elevators: found.elevators,
+		//totals
+		line: found.line,
+		totalMat: found.totalMat,
+		fee: found.fee,
+		total: found.total
+
+	});
+    res.end()
+})
+
 
