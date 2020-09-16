@@ -6,9 +6,14 @@ const app = express();
 const morgan = require('./node_modules/morgan');
 const bodyParser = require('./node_modules/body-parser');
 const cors = require('./node_modules/cors/lib');
+const loki = require('lokijs');
 
 app.use(bodyParser.urlencoded({extended: false})) //middleware to process request easier
-app.use(express.static('../'))//allows .html to work locally 
+
+
+app.use(express.static('../websiteWithNodeJs/'))//allows .html to work locally 
+
+
 app.use(morgan('short')) //combined or short options
 app.use(cors())//enables all cors requests
 
@@ -133,7 +138,7 @@ totalString = formatNumber(total);
 
 var formatNumber = function(x){
 	x = x.toFixed(2);
-	 return x.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+	 return x.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')+"local";
 };
 
 function calcCom(){
@@ -216,3 +221,26 @@ var comCalc = function(){
 	//logVariables();
 
 };
+
+//using the loki database
+
+var db = new loki('projects.json',{
+    autoload: true,
+    autoloadCallback: loadHandler,
+    autosave: true,
+    autosaveInterval: 10000
+});
+
+//load Database from file
+function loadHandler() {
+// if database did not exist it will be empty so I will intitialize here
+
+};
+console.log(db);
+
+var testcollection = db.addCollection("testCollection")
+var test = testcollection.insert ({name:"john"});
+testcollection.insert({name: "testing"})
+
+console.log(db);
+
